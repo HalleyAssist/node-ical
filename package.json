@@ -19,7 +19,6 @@
   },
   "dependencies": {
     "moment-timezone": "^0.5.31",
-    "request": "^2.88.2",
     "rrule": "2.6.6",
     "uuid": "^8.3.1"
   },

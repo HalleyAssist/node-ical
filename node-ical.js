@@ -1,5 +1,4 @@
 const fs = require('fs');
-const request = require('request');
 
 const ical = require('./ical.js');
 
@@ -83,45 +82,6 @@ const sync = {};
 const async = {};
 // Auto-detect functions for backwards compatibility.
 const autodetect = {};
-
-/**
- * Download an iCal file from the web and parse it.
- *
- * @param {string} url                - URL of file to request.
- * @param {Object|icsCallback} [opts] - Options to pass to request() from npm:request.
- *                                      Alternatively you can pass the callback function directly.
- *                                      If no callback is provided a promise will be returned.
- * @param {icsCallback} [cb]          - Callback function.
- *                                      If no callback is provided a promise will be returned.
- *
- * @returns {optionalPromise} Promise is returned if no callback is passed.
- */
-async.fromURL = function (url, options, cb) {
-  return promiseCallback((resolve, reject) => {
-    request(url, options, (error, response, data) => {
-      if (error) {
-        reject(error);
-        return;
-      }
-
-      // If (r.statusCode !== 200) {
-      // all ok status codes should be accepted (any 2XX code)
-      if (Math.floor(response.statusCode / 100) !== 2) {
-        reject(new Error(`${response.statusCode} ${response.statusMessage}`));
-        return;
-      }
-
-      ical.parseICS(data, (error, ics) => {
-        if (error) {
-          reject(error);
-          return;
-        }
-
-        resolve(ics);
-      });
-    });
-  }, cb);
-};
 
 /**
  * Load iCal data from a file and parse it.
