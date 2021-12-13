@@ -1,7 +1,7 @@
 /* eslint-disable max-depth, max-params, no-warning-comments */
 
 const {v4: uuid} = require('uuid');
-const moment = require('moment-timezone');
+const {DateTime} = require('luxon');
 const rrule = require('rrule').RRule;
 
 /** **************
@@ -178,7 +178,7 @@ const dateParameter = function (name) {
 
         // Watch out for offset timezones
         // If the conversion above didn't find any matching IANA tz
-        // And oiffset is still present
+        // And offset is still present
         if (tz && tz.startsWith('(')) {
           // Extract just the offset
           const regex = /[+|-]\d*:\d*/;
@@ -189,14 +189,11 @@ const dateParameter = function (name) {
 
         // Timezone not confirmed yet
         if (found === '') {
-          // Lookup tz
-          found = moment.tz.names().find(zone => {
-            return zone === tz;
-          });
+          found = tz;
         }
 
         // Timezone confirmed or forced to offset
-        newDate = found ? moment.tz(value, 'YYYYMMDDTHHmmss' + offset, tz).toDate() : new Date(
+        newDate = found ? DateTime.fromFormat(value, 'YYYYMMDDTHHmmss' + offset, {zone: found}).toJSDate() : new Date(
           Number.parseInt(comps[1], 10),
           Number.parseInt(comps[2], 10) - 1,
           Number.parseInt(comps[3], 10),
@@ -438,7 +435,7 @@ module.exports = {
         // If no rule start date
         if (rule.includes('DTSTART') === false) {
           // Get date/time into a specific format for comapare
-          let x = moment(curr.start).format('MMMM/Do/YYYY, h:mm:ss a');
+          let x = DateTime.fromJSDate(curr.start).toFormat('MMMM/Do/YYYY, h:mm:ss a');
           // If the local time value is midnight
           // This a whole day event
           if (x.slice(-11) === '12:00:00 am') {
@@ -453,7 +450,7 @@ module.exports = {
               curr.start = new Date(curr.start.getTime() + (Math.abs(offset) * 60000));
             } else {
               // Get rid of any time (shouldn't be any, but be sure)
-              x = moment(curr.start).format('MMMM/Do/YYYY');
+              x = DateTime.fromJSDate(curr.start).toFormat('MMMM/Do/YYYY');
               const comps = /^(\d{2})\/(\d{2})\/(\d{4})/.exec(x);
               if (comps) {
                 curr.start = new Date(comps[3], comps[1] - 1, comps[2]);
