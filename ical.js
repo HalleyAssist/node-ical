@@ -2,7 +2,7 @@
 
 const {v4: uuid} = require('uuid');
 const {DateTime} = require('luxon');
-const rrule = require('rrule').RRule;
+let RRule
 
 /** **************
  *  A tolerant, minimal icalendar parser
@@ -471,9 +471,13 @@ module.exports = {
           }
         }
 
+        if(!rrule) {
+          RRule = global.require('rrule').RRule;
+        }
+
         // Make sure to catch error from rrule.fromString()
         try {
-          curr.rrule = rrule.fromString(rule);
+          curr.rrule = RRule.fromString(rule);
         } catch (error) {
           throw error;
         }
